@@ -113,9 +113,10 @@ object LoanAnalysis {
       println(f"TrainingDF Null values in column $column%s : ${trainingRawDF.filter(trainingRawDF(column) === null || trainingRawDF(column).isNull || trainingRawDF(column).isNaN).count()}%d")
     //    b. Outlier Removal
     for (column <- Array("ApplicantIncome","CoapplicantIncome","LoanAmount")) {
-      trainingRawDF = trainingRawDF.withColumn("cubeRoot".concat(column), functions.pow(0.3333,trainingRawDF(column)))
-      testingRawDF = testingRawDF.withColumn("cubeRoot".concat(column), functions.pow(0.3333,testingRawDF(column)))
+      trainingRawDF = trainingRawDF.withColumn("cubeRoot".concat(column), functions.pow(trainingRawDF(column), 0.3333))
+      testingRawDF = testingRawDF.withColumn("cubeRoot".concat(column), functions.pow(testingRawDF(column), 0.3333))
     }
+
     trainingRawDF = trainingRawDF.na.fill(Map(("cubeRootApplicantIncome",0.0),("cubeRootCoapplicantIncome",0.0),("cubeRootLoanAmount",0.0)))
     testingRawDF = testingRawDF.na.fill(Map(("cubeRootApplicantIncome",0.0),("cubeRootCoapplicantIncome",0.0),("cubeRootLoanAmount",0.0)))
     // Output of Stage(2)
@@ -137,7 +138,7 @@ object LoanAnalysis {
     val labelToIndex : StringIndexer = new StringIndexer().setInputCol("Loan_Status").setOutputCol("IndexedLoanStatus").setHandleInvalid("keep")
     val categoricalFeatureMaker : VectorAssembler = new VectorAssembler().setInputCols(Array("IndexedGender","IndexedMarried","IndexedDependents","IndexedEducation","IndexedSelfEmployed","IndexedPropertyArea","Credit_History","BucketedTerm")).setOutputCol("CategoricalFeature")
     val chiSqSelector : ChiSqSelector = new ChiSqSelector().setFeaturesCol("CategoricalFeature").setOutputCol("SelectedCategoricalFeature").setLabelCol("IndexedLoanStatus").setNumTopFeatures(7)
-    val featureMaker : VectorAssembler = new VectorAssembler().setInputCols(Array("SelectedCategoricalFeature","cubeRootApplicantIncome","cubeRootCoapplicantIncome","cubeRootLoanAmount")).setOutputCol("Feature")
+    val featureMaker : VectorAssembler = new VectorAssembler().setInputCols(Array("SelectedCategoricalFeature","cubeRootApplicantIncome","cubeRootCoapplicantIncome")).setOutputCol("Feature")
     val indexToLabel : IndexToString = new IndexToString().setInputCol("Prediction").setOutputCol("PredictedLoanStatus").setLabels(labelToIndex.fit(trainingRawDF).labels)
     // ii. Problem Solver
     val problemSolver : LogisticRegression = new LogisticRegression().setFeaturesCol("Feature").setLabelCol("IndexedLoanStatus").setPredictionCol("Prediction").setMaxIter(20)
@@ -152,7 +153,7 @@ object LoanAnalysis {
     // i. Setting up Pipeline/Estimator.
     val pipeLine : Pipeline = new Pipeline().setStages(Array(genderToIndex,marriedToIndex,dependentsToIndex,educationToIndex,employedToIndex,propertyToIndex,termBucketizer,labelToIndex,categoricalFeatureMaker,chiSqSelector,featureMaker,problemSolver,indexToLabel))
     // ii. Setting up Parameter grid.
-    val paramGrid : Array[ParamMap] = new ParamGridBuilder().addGrid(problemSolver.regParam, Array(0.1,0.01,0.001)).addGrid(problemSolver.elasticNetParam, Array(0.05,0.10,0.15)).build()
+    val paramGrid : Array[ParamMap] = new ParamGridBuilder().addGrid(problemSolver.regParam, Array(0.1,0.01,0.001)).addGrid(problemSolver.elasticNetParam, Array(0.10,0.30,0.50)).build()
 
     // iii. Setting up Evaluator.
     val evaluator : BinaryClassificationEvaluator = new BinaryClassificationEvaluator().setLabelCol("IndexedLoanStatus").setMetricName("areaUnderROC")
