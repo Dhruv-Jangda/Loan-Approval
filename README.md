@@ -30,11 +30,9 @@ These instructions will get you a copy of the project up and running on your loc
 12. In Project Structure window, select SDKs from left panel.
 13. Click on + -> JDK.
 14. In new window popped, go to **location_2** -> Java -> jdk1.8.0_144 and click OK.
-[](https://github.com/Dhruv-Jangda/Loan-Approval/tree/master/Data%20Visuals/SDK_Setting.JPG)
 15. Now select Libraries from left panel.
 16. Click on + -> Java.
 17. In new window popped, go to **location_1** -> **name** -> jars and click OK.
-[](https://github.com/Dhruv-Jangda/Loan-Approval/tree/master/Data%20Visuals/Spark_Setting.JPG)
 18. Name the library imported to your choice and click on OK.
 19. Make sure to verify the library imported by checking for the green tick at upper right corner of code editor.
 20. Now click Build -> Build Project.
