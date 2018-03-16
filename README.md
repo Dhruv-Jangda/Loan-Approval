@@ -59,7 +59,7 @@ In order to deploy the project to live clustered environment :
 	4. Click on + -> JAR and select option as needed.
 	5. Specify settings as needed and click OK.
 	6. Now, a jar file will be created when the project is build.
-2. Use the created jar file in spark-submit command in bin directory of **name**(folder name of extracted spark-2.2.0-bin-hadoop2.7.tgz) and refer https://spark.apache.org/docs/latest/submitting-applications.html for further settings and use of spark-submit.
+2. Use the created jar file in spark-submit command in bin directory of **name**(folder name of extracted spark-2.2.0-bin-hadoop2.7.tgz) and refer further [settings](https://spark.apache.org/docs/latest/submitting-applications.html) and use of spark-submit.
 
 ## Author
 
